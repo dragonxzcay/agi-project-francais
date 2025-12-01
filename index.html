@@ -2,24 +2,28 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>AGI</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         
-        body { 
-            background: #000; 
-            height: 100vh; width: 100vw; 
-            overflow: hidden; 
-            display: flex; justify-content: center; align-items: center; 
-            font-family: 'Segoe UI', Arial, sans-serif; 
-            cursor: default; 
+        html, body {
+            background: #000;
+            width: 100%; height: 100%;
+            overflow: hidden;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            cursor: default;
         }
 
         #cinema-screen {
-            position: relative;
+            position: fixed;
+            top: 0; left: 0;
             width: 100%; height: 100%;
             background: black;
+            z-index: 1;
         }
 
         #main-player {
@@ -44,6 +48,25 @@
         }
         
         #replay-prompt { display: none; background: rgba(0,0,0,0.9); }
+
+        #rotate-prompt {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #000;
+            color: white;
+            display: none; 
+            flex-direction: column;
+            justify-content: center; align-items: center;
+            z-index: 9999;
+            text-align: center;
+        }
+
+        .rotate-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+            animation: rotateAnim 2s infinite;
+        }
 
         .action-btn {
             border: 1px solid rgba(255,255,255,0.4);
@@ -116,30 +139,17 @@
             transition: opacity 1.5s ease;
         }
 
+        @media screen and (orientation: portrait) {
+            #rotate-prompt { display: flex; }
+            #start-prompt, #cinema-screen { display: none; }
+        }
+
+        @keyframes rotateAnim { 0% { transform: rotate(0deg); } 25% { transform: rotate(-90deg); } 100% { transform: rotate(-90deg); } }
         @keyframes textPulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
-        
-        @keyframes slideUp { 
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; } 
-        }
-
-        @keyframes floatLoop {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-15px); }
-            100% { transform: translateY(0px); }
-        }
-
-        @keyframes dangerLoop {
-            0% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(255,0,0,0.3)); }
-            50% { transform: scale(1.02); filter: drop-shadow(0 0 15px rgba(255,0,0,0.6)); }
-            100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(255,0,0,0.3)); }
-        }
-
-        @keyframes numberPop {
-            0% { transform: scale(0.5); opacity: 0; }
-            50% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(1); opacity: 0; }
-        }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes floatLoop { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
+        @keyframes dangerLoop { 0% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(255,0,0,0.3)); } 50% { transform: scale(1.02); filter: drop-shadow(0 0 15px rgba(255,0,0,0.6)); } 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(255,0,0,0.3)); } }
+        @keyframes numberPop { 0% { transform: scale(0.5); opacity: 0; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }
 
         .anim-a { animation: slideUp 0.8s forwards, floatLoop 4s ease-in-out infinite 0.8s; }
         .anim-b { animation: slideUp 0.8s forwards 0.2s, dangerLoop 3s ease-in-out infinite 1s; }
@@ -149,24 +159,29 @@
 </head>
 <body>
 
+    <div id="rotate-prompt">
+        <div class="rotate-icon">↻</div>
+        <div style="font-size: 20px; letter-spacing: 2px;">TOURNER L'APPAREIL</div>
+    </div>
+
     <div id="cinema-screen">
-        <video id="main-player" playsinline>
+        <video id="main-player" playsinline webkit-playsinline>
             <source src="assets/main.webm" type="video/webm">
         </video>
 
-        <div id="start-prompt" onclick="initSequence()">
+        <div id="start-prompt" ontouchstart="initSequence()" onclick="initSequence()">
             <div class="action-btn">[ INITIALISER L'AGI ]</div>
         </div>
 
         <div id="countdown-layer">3</div>
 
-        <div id="replay-prompt" onclick="location.reload()">
+        <div id="replay-prompt" ontouchstart="location.reload()" onclick="location.reload()">
             <div class="action-btn">↻ REJOUER L'EXPÉRIENCE</div>
         </div>
 
         <div id="interface-layer">
-            <img src="assets/end_a_button.png" class="choice-btn" id="btn-a" onclick="chooseEnding('A')">
-            <img src="assets/end_b_button.png" class="choice-btn" id="btn-b" onclick="chooseEnding('B')">
+            <img src="assets/end_a_button.png" class="choice-btn" id="btn-a" ontouchstart="chooseEnding('A')" onclick="chooseEnding('A')">
+            <img src="assets/end_b_button.png" class="choice-btn" id="btn-b" ontouchstart="chooseEnding('B')" onclick="chooseEnding('B')">
         </div>
 
         <div id="fade-overlay"></div>
@@ -184,6 +199,7 @@
         const fade = document.getElementById('fade-overlay');
         const btnA = document.getElementById('btn-a');
         const btnB = document.getElementById('btn-b');
+        const cinemaScreen = document.getElementById('cinema-screen');
 
         let isMenuOpen = false;
         let isEndingPlaying = false;
@@ -192,7 +208,7 @@
 
         video.onerror = function() {
             if(video.src.includes('END') || video.src.includes('credits')) {
-                alert("ERREUR VIDEO: Fichier introuvable. Vérifiez le nom sur GitHub ! \n" + video.src);
+                alert("ERREUR VIDEO: Fichier introuvable sur GitHub.");
                 fade.style.opacity = '0'; 
             }
         };
@@ -203,9 +219,16 @@
             document.body.style.cursor = 'none';
 
             const doc = document.documentElement;
-            if (doc.requestFullscreen) doc.requestFullscreen();
-            else if (doc.webkitRequestFullscreen) doc.webkitRequestFullscreen();
-            else if (doc.msRequestFullscreen) doc.msRequestFullscreen();
+            
+            if (doc.requestFullscreen) {
+                doc.requestFullscreen();
+            } else if (doc.webkitRequestFullscreen) {
+                doc.webkitRequestFullscreen();
+            } else if (doc.msRequestFullscreen) {
+                doc.msRequestFullscreen();
+            } else if (cinemaScreen.webkitRequestFullscreen) {
+                cinemaScreen.webkitRequestFullscreen();
+            }
 
             runCountdown(3);
         }
@@ -289,8 +312,6 @@
                 video.src = nextVideo;
                 video.load();
                 
-                // --- SAFETY VALVE ---
-                // If video doesn't load in 3 seconds, force show it anyway to unstick screen
                 const safetyTimer = setTimeout(() => {
                     if (fade.style.opacity == '1') {
                         fade.style.opacity = '0';
@@ -300,7 +321,7 @@
                 }, 3000);
 
                 video.onloadeddata = () => {
-                    clearTimeout(safetyTimer); // Cancel safety timer if loaded fast
+                    clearTimeout(safetyTimer);
                     setTimeout(() => {
                         fade.style.opacity = '0';
                         setTimeout(() => {
@@ -309,7 +330,6 @@
                         }, 1000); 
                     }, 500);
                 };
-
             }, 1000);
         }
 
@@ -322,7 +342,6 @@
                 video.src = 'assets/credits.webm';
                 video.load();
 
-                // --- SAFETY VALVE FOR CREDITS ---
                 const creditTimer = setTimeout(() => {
                     if (fade.style.opacity == '1') {
                         fade.style.opacity = '0';
